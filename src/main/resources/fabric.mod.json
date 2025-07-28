@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "id": "pibblexp",
+  "version": "${version}",
+  "name": "Pibble XP",
+  "description": "Tiny Armor HUD. I did not name this. [ made with love by roo ]",
+  "authors": [],
+  "contact": {},
+  "license": "All-Rights-Reserved",
+  "icon": "assets/pibblexp/icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "org.loveroo.pibblexp.client.PibbleXPClient"
+    ],
+    "main": [
+      "org.loveroo.pibblexp.PibbleXP"
+    ]
+  },
+  "mixins": [
+    "pibblexp.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric": "*",
+    "minecraft": "${minecraft_version}"
+  }
+}
