@@ -14,7 +14,7 @@ public class PibbleXPClient implements ClientModInitializer {
     public void onInitializeClient() {
         HudRender armorHud = new HudRender();
 
-        HudElementRegistry.attachElementAfter(VanillaHudElements.MISC_OVERLAYS, Identifier.of(PibbleXP.MOD_ID, "pibblexp"), armorHud);
+        HudElementRegistry.attachElementAfter(VanillaHudElements.HOTBAR, Identifier.of(PibbleXP.MOD_ID, "pibblexp"), armorHud);
         ClientTickEvents.END_CLIENT_TICK.register(armorHud::update);
     }
 }
