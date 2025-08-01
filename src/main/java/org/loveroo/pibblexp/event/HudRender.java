@@ -1,11 +1,9 @@
 package org.loveroo.pibblexp.event;
 
-import net.fabricmc.fabric.api.client.rendering.v1.HudLayerRegistrationCallback;
-import net.fabricmc.fabric.api.client.rendering.v1.IdentifiedLayer;
-import net.fabricmc.fabric.api.client.rendering.v1.LayeredDrawerWrapper;
+import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElement;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.item.ItemStack;
@@ -14,18 +12,13 @@ import org.loveroo.pibblexp.PibbleXP;
 
 import java.util.ArrayList;
 
-public class HudRender implements HudLayerRegistrationCallback {
+public class HudRender implements HudElement {
 
     private final float scale = 2.0f/3.0f;
     private final Identifier cooldownTexture = Identifier.of(PibbleXP.MOD_ID, "textures/armor_display/cooldown.png");
 
     private int ticks = 0;
     private int flashColor = 0xFFFF5656;
-
-    @Override
-    public void register(LayeredDrawerWrapper layeredDrawer) {
-        layeredDrawer.attachLayerAfter(IdentifiedLayer.MISC_OVERLAYS, Identifier.of(PibbleXP.MOD_ID, "pibblexp"), this::draw);
-    }
 
     public void update(MinecraftClient client) {
         if(++ticks % 8 == 0) {
@@ -40,17 +33,18 @@ public class HudRender implements HudLayerRegistrationCallback {
         }
     }
 
-    public void draw(DrawContext context, RenderTickCounter ticks) {
+    @Override
+    public void render(DrawContext context, RenderTickCounter ticks) {
         var client = MinecraftClient.getInstance();
 
-        var x = client.getWindow().getScaledWidth()/2.0;
-        var y = client.getWindow().getScaledHeight() - 50.0;
+        var x = client.getWindow().getScaledWidth()/2.0f;
+        var y = client.getWindow().getScaledHeight() - 50.0f;
 
         var matrix = context.getMatrices();
 
-        matrix.push();
-        matrix.translate(x, y, 0.0);
-        matrix.scale(scale, scale, 1.0f);
+        matrix.pushMatrix();
+        matrix.translate(x, y);
+        matrix.scale(scale, scale);
 
         var text = client.textRenderer;
 
@@ -65,16 +59,16 @@ public class HudRender implements HudLayerRegistrationCallback {
             var item = items.get(i);
 
             if(item != ItemStack.EMPTY) {
-                var progress = client.player.getItemCooldownManager().getCooldownProgress(item, ticks.getTickDelta(true));
+                var progress = client.player.getItemCooldownManager().getCooldownProgress(item, ticks.getTickProgress(true));
                 var cooldown = (int)Math.ceil(progress * 10);
 
                 // TODO: method is named fill :3
-                context.drawTexture(RenderLayer::getGuiTexturedOverlay, cooldownTexture, -10, offset*i + 2 - cooldown - 13, 0, 0, 20, cooldown, 20, cooldown);
+                context.drawTexture(RenderPipelines.GUI_TEXTURED, cooldownTexture, -10, offset*i + 2 - cooldown - 13, 0, 0, 20, cooldown, 20, cooldown);
                 context.drawCenteredTextWithShadow(text, (item.getMaxDamage() - item.getDamage()) + "", 0, offset*i - 20, getColor(item));
             }
         }
 
-        matrix.pop();
+        matrix.popMatrix();
     }
 
     private int getColor(ItemStack item) {
