@@ -60,12 +60,10 @@ public class HudRender implements HudRenderCallback {
             var item = items.get(i);
 
             if(item != ItemStack.EMPTY) {
-                var progress = client.player.getItemCooldownManager().getCooldownProgress(item.getItem(), ticks.getTickDelta(true));
+                var progress = client.player.getItemCooldownManager().getCooldownProgress(item, ticks.getTickDelta(true));
                 var cooldown = (int)Math.ceil(progress * 10);
 
-                RenderSystem.enableBlend();
-                context.drawTexture(cooldownTexture, -10, offset*i + 2 - cooldown - 13, 0, 0, 20, cooldown, 20, cooldown);
-                RenderSystem.disableBlend();
+                context.drawTexture(RenderLayer::getGuiTextured, cooldownTexture, -10, offset*i + 2 - cooldown - 13, 0, 0, 20, cooldown, 20, cooldown);
                 context.drawCenteredTextWithShadow(text, (item.getMaxDamage() - item.getDamage()) + "", 0, offset*i - 20, getColor(item));
             }
         }
