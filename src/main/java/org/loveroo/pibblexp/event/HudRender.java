@@ -1,8 +1,7 @@
 package org.loveroo.pibblexp.event;
 
-import net.fabricmc.fabric.api.client.rendering.v1.HudLayerRegistrationCallback;
-import net.fabricmc.fabric.api.client.rendering.v1.IdentifiedLayer;
-import net.fabricmc.fabric.api.client.rendering.v1.LayeredDrawerWrapper;
+import com.mojang.blaze3d.systems.RenderSystem;
+import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.RenderLayer;
@@ -14,18 +13,13 @@ import org.loveroo.pibblexp.PibbleXP;
 
 import java.util.ArrayList;
 
-public class HudRender implements HudLayerRegistrationCallback {
+public class HudRender implements HudRenderCallback {
 
     private final float scale = 2.0f/3.0f;
     private final Identifier cooldownTexture = Identifier.of(PibbleXP.MOD_ID, "textures/armor_display/cooldown.png");
 
     private int ticks = 0;
     private int flashColor = 0xFFFF5656;
-
-    @Override
-    public void register(LayeredDrawerWrapper layeredDrawer) {
-        layeredDrawer.attachLayerAfter(IdentifiedLayer.MISC_OVERLAYS, Identifier.of(PibbleXP.MOD_ID, "pibblexp"), this::draw);
-    }
 
     public void update(MinecraftClient client) {
         if(++ticks % 8 == 0) {
@@ -40,7 +34,8 @@ public class HudRender implements HudLayerRegistrationCallback {
         }
     }
 
-    public void draw(DrawContext context, RenderTickCounter ticks) {
+    @Override
+    public void onHudRender(DrawContext context, RenderTickCounter ticks) {
         var client = MinecraftClient.getInstance();
 
         var x = client.getWindow().getScaledWidth()/2.0;
@@ -65,11 +60,12 @@ public class HudRender implements HudLayerRegistrationCallback {
             var item = items.get(i);
 
             if(item != ItemStack.EMPTY) {
-                var progress = client.player.getItemCooldownManager().getCooldownProgress(item, ticks.getTickDelta(true));
+                var progress = client.player.getItemCooldownManager().getCooldownProgress(item.getItem(), ticks.getTickDelta(true));
                 var cooldown = (int)Math.ceil(progress * 10);
 
-                // TODO: method is named fill :3
-                context.drawTexture(RenderLayer::getGuiTexturedOverlay, cooldownTexture, -10, offset*i + 2 - cooldown - 13, 0, 0, 20, cooldown, 20, cooldown);
+                RenderSystem.enableBlend();
+                context.drawTexture(cooldownTexture, -10, offset*i + 2 - cooldown - 13, 0, 0, 20, cooldown, 20, cooldown);
+                RenderSystem.disableBlend();
                 context.drawCenteredTextWithShadow(text, (item.getMaxDamage() - item.getDamage()) + "", 0, offset*i - 20, getColor(item));
             }
         }
