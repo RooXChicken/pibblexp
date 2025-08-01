@@ -24,7 +24,7 @@ public class HudRender implements HudLayerRegistrationCallback {
 
     @Override
     public void register(LayeredDrawerWrapper layeredDrawer) {
-        layeredDrawer.attachLayerAfter(IdentifiedLayer.MISC_OVERLAYS, Identifier.of(PibbleXP.MOD_ID, "pibblexp"), this::draw);
+        layeredDrawer.attachLayerAfter(IdentifiedLayer.HOTBAR_AND_BARS, Identifier.of(PibbleXP.MOD_ID, "pibblexp"), this::draw);
     }
 
     public void update(MinecraftClient client) {
@@ -69,7 +69,7 @@ public class HudRender implements HudLayerRegistrationCallback {
                 var cooldown = (int)Math.ceil(progress * 10);
 
                 // TODO: method is named fill :3
-                context.drawTexture(RenderLayer::getGuiTexturedOverlay, cooldownTexture, -10, offset*i + 2 - cooldown - 13, 0, 0, 20, cooldown, 20, cooldown);
+                context.drawTexture(RenderLayer::getGuiTextured, cooldownTexture, -10, offset*i + 2 - cooldown - 13, 0, 0, 20, cooldown, 20, cooldown);
                 context.drawCenteredTextWithShadow(text, (item.getMaxDamage() - item.getDamage()) + "", 0, offset*i - 20, getColor(item));
             }
         }
